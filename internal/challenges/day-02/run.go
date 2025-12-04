@@ -14,10 +14,11 @@ import (
 func Run() {
 	fmt.Println("Generating solutions for day 02...")
 
-	inputStr := helpers.LoadStringList("./internal/challenges/day-02/input_test.txt")[0]
+	inputStr := helpers.LoadStringList("./internal/challenges/day-02/input.txt")[0]
 	input := ParseInput(inputStr)
 
-	fmt.Println("The answer to part one is:", CalculateInvalidIds(input))
+	fmt.Println("The answer to part one is:", CalculateInvalidIds(input, false))
+	fmt.Println("The answer to part two is:", CalculateInvalidIds(input, true))
 }
 
 type Range struct {
@@ -27,7 +28,6 @@ type Range struct {
 
 func ParseInput(input string) []Range {
 	ranges := strings.Split(input, ",")
-
 	output := make([]Range, len(ranges))
 
 	for i, r := range ranges {
@@ -48,60 +48,35 @@ func ParseInput(input string) []Range {
 	return output
 }
 
-func CalculateInvalidIds(ranges []Range) int {
+func CalculateInvalidIds(ranges []Range, partTwo bool) int {
 	invalidIdSum := 0
 
 	for _, r := range ranges {
 		for i := r.start; i <= r.end; i++ {
 			str := strconv.Itoa(i)
-			// fmt.Println(str)
-
 			midpoint := len(str) / 2
-			// fmt.Println("midpoint:", midpoint)
 
 			for j := 1; j <= midpoint; j++ {
+				if !partTwo {
+					if len(str)%2 != 0 {
+						continue
+					}
+					j = midpoint
+				}
+
 				if len(str)%j != 0 {
 					continue
 				}
-				// fmt.Println(str)
-				// fmt.Println("j:", j)
+
 				splitStr := SplitSubN(str, j)
-				// fmt.Println("split:", splitStr)
 				slices.Sort(splitStr)
 				splitStr = slices.Compact(splitStr)
-				// fmt.Println("compacted:", splitStr)
 
 				if len(splitStr) == 1 {
-					// fmt.Println("MATCH:", i)
 					invalidIdSum += i
 					break
 				}
 			}
-
-			/* PART 1
-			if len(str)%2 != 0 {
-				continue
-			}
-			midpoint := len(str) / 2
-			// fmt.Println("midepoint:", midpoint)
-			firstHalf := str[0:midpoint]
-			secondHalf := str[midpoint:]
-			// fmt.Println("first:", firstHalf)
-
-			// fmt.Println("second:", secondHalf)
-
-			// splitStr := strings.SplitAfterN(str, "", midpoint)
-			// fmt.Println(splitStr)
-
-			if firstHalf == secondHalf {
-				fmt.Println("match for", str)
-				// val, err := strconv.Atoi(firstHalf)
-				// if err != nil {
-				// 	log.Fatal(err)
-				// }
-				invalidIdSum += i
-			}
-			*/
 		}
 	}
 
