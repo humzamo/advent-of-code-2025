@@ -1,8 +1,10 @@
 package day02
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -12,7 +14,7 @@ import (
 func Run() {
 	fmt.Println("Generating solutions for day 02...")
 
-	inputStr := helpers.LoadStringList("./internal/challenges/day-02/input.txt")[0]
+	inputStr := helpers.LoadStringList("./internal/challenges/day-02/input_test.txt")[0]
 	input := ParseInput(inputStr)
 
 	fmt.Println("The answer to part one is:", CalculateInvalidIds(input))
@@ -52,7 +54,31 @@ func CalculateInvalidIds(ranges []Range) int {
 	for _, r := range ranges {
 		for i := r.start; i <= r.end; i++ {
 			str := strconv.Itoa(i)
-			fmt.Println(str)
+			// fmt.Println(str)
+
+			midpoint := len(str) / 2
+			// fmt.Println("midpoint:", midpoint)
+
+			for j := 1; j <= midpoint; j++ {
+				if len(str)%j != 0 {
+					continue
+				}
+				// fmt.Println(str)
+				// fmt.Println("j:", j)
+				splitStr := SplitSubN(str, j)
+				// fmt.Println("split:", splitStr)
+				slices.Sort(splitStr)
+				splitStr = slices.Compact(splitStr)
+				// fmt.Println("compacted:", splitStr)
+
+				if len(splitStr) == 1 {
+					// fmt.Println("MATCH:", i)
+					invalidIdSum += i
+					break
+				}
+			}
+
+			/* PART 1
 			if len(str)%2 != 0 {
 				continue
 			}
@@ -75,8 +101,28 @@ func CalculateInvalidIds(ranges []Range) int {
 				// }
 				invalidIdSum += i
 			}
+			*/
 		}
 	}
 
 	return invalidIdSum
+}
+
+func SplitSubN(s string, n int) []string {
+	sub := ""
+	subs := []string{}
+
+	runes := bytes.Runes([]byte(s))
+	l := len(runes)
+	for i, r := range runes {
+		sub = sub + string(r)
+		if (i+1)%n == 0 {
+			subs = append(subs, sub)
+			sub = ""
+		} else if (i + 1) == l {
+			subs = append(subs, sub)
+		}
+	}
+
+	return subs
 }
