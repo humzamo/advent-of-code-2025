@@ -3,6 +3,7 @@ package day03
 import (
 	"fmt"
 	"log"
+	"math/big"
 	"strconv"
 
 	"github.com/humzamo/advent-of-code-2025/internal/helpers"
@@ -13,10 +14,10 @@ func Run() {
 
 	input := helpers.LoadParsedList[Voltages]("./internal/challenges/day-03/input.txt")
 
-	fmt.Println("The answer to part one is:", CalculateJoltage(input, false))
-}
+	fmt.Println("The answer to part one is:", CalculateJoltage(input))
+	fmt.Println("The answer to part one is:", CalculateJoltagePartTwo(input))
 
-type Voltages []int
+}
 
 func (v Voltages) New() Voltages {
 	return Voltages{}
@@ -40,16 +41,15 @@ func (v Voltages) Convert(str string) Voltages {
 // digits is a helper map to map digits to their positions
 type digits map[int][]int
 
-func CalculateJoltage(voltages []Voltages, partTwo bool) int {
+func CalculateJoltage(voltages []Voltages) int {
 	sum := 0
 
 	for _, v := range voltages {
-		fmt.Println(v)
 		digits := digits{}
 		for i, d := range v {
 			digits[d] = append(digits[d], i)
 		}
-		fmt.Println(digits)
+
 		max := 0
 		for k, w := range digits {
 			if k > max {
@@ -60,7 +60,7 @@ func CalculateJoltage(voltages []Voltages, partTwo bool) int {
 				max = k
 			}
 		}
-		fmt.Println("max:", max)
+
 		firstPositionsOfMax := digits[max][0]
 		secondMax := 0
 
@@ -70,9 +70,73 @@ func CalculateJoltage(voltages []Voltages, partTwo bool) int {
 			}
 		}
 		joltage := 10*max + secondMax
-		fmt.Println(joltage)
 		sum += joltage
 	}
 
 	return sum
+}
+
+type Voltages []int
+
+func CalculateJoltagePartTwo(voltages []Voltages) string {
+	sum := &big.Int{}
+	iterations := len(voltages[0]) - 12
+
+	for _, v := range voltages {
+		max := big.Int{}
+		index := 0
+
+		for i := 0; i < iterations; i++ {
+			max, index = FindMax(v)
+			v = removeDigitFromArray(index, v)
+		}
+		sum = sum.Add(sum, &max)
+	}
+
+	return sum.String()
+}
+
+// FindMax removes one digit from the voltage to get the max
+// It returns the max and the index of the digit to remove
+func FindMax(v Voltages) (big.Int, int) {
+	index := 0
+	currentMax := big.Int{}
+	for i := 0; i < len(v); i++ {
+		tempArr := removeDigitFromArray(i, v)
+
+		str := ""
+		for _, t := range tempArr {
+			str += strconv.Itoa(t)
+		}
+
+		tempVolt := ParseBigInt(str)
+		if tempVolt.Cmp(&currentMax) == 1 {
+			currentMax = tempVolt
+			index = i
+		}
+	}
+
+	return currentMax, index
+}
+
+func removeDigitFromArray(index int, v Voltages) Voltages {
+	tempArr := Voltages{}
+	if index == 0 {
+		tempArr = append(tempArr, v[1:]...)
+	} else if index == len(v)-1 {
+		tempArr = append(tempArr, v[:len(v)-1]...)
+	} else {
+		tempArr = append(tempArr, v[:index]...)
+		tempArr = append(tempArr, v[index+1:]...)
+	}
+	return tempArr
+}
+
+func ParseBigInt(str string) big.Int {
+	n := new(big.Int)
+	n, ok := n.SetString(str, 10)
+	if !ok {
+		log.Fatal("unable to parse big int")
+	}
+	return *n
 }
