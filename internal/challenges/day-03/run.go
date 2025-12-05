@@ -3,7 +3,6 @@ package day03
 import (
 	"fmt"
 	"log"
-	"math/big"
 	"strconv"
 
 	"github.com/humzamo/advent-of-code-2025/internal/helpers"
@@ -14,9 +13,8 @@ func Run() {
 
 	input := helpers.LoadParsedList[Voltages]("./internal/challenges/day-03/input.txt")
 
-	fmt.Println("The answer to part one is:", CalculateJoltage(input))
-	fmt.Println("The answer to part one is:", CalculateJoltagePartTwo(input))
-
+	fmt.Println("The answer to part one is:", CalculateJoltage(input, false))
+	fmt.Println("The answer to part one is:", CalculateJoltage(input, true))
 }
 
 type Voltages []int
@@ -40,92 +38,64 @@ func (v Voltages) Convert(str string) Voltages {
 	return output
 }
 
-func CalculateJoltage(voltages []Voltages) int64 {
+func CalculateJoltage(voltages []Voltages, partTwo bool) int64 {
 	var sum int64
 
+	k := 2
+	if partTwo {
+		k = 12
+	}
+
 	for _, v := range voltages {
-		max := 0
-		firstPositionsOfMax := 0
-		for i := 0; i < len(v)-1; i++ {
-			if v[i] > max {
-				max = v[i]
-				firstPositionsOfMax = i
-			}
-		}
-
-		secondMax := 0
-
-		for i := firstPositionsOfMax + 1; i < len(v); i++ {
-			if v[i] > secondMax {
-				secondMax = v[i]
-			}
-		}
-		joltage := 10*max + secondMax
-		sum += int64(joltage)
+		res := PickLargestK(v, k)
+		joltage := digitSliceToInt64(res)
+		sum += joltage
 	}
 
 	return sum
 }
 
-func CalculateJoltagePartTwo(voltages []Voltages) int64 {
-	sum := &big.Int{}
-	iterations := len(voltages[0]) - 12
+// Given a slice of digits and a target length K,
+// choose the lexicographically largest possible subsequence of length K.
+func PickLargestK(v Voltages, k int) Voltages {
+	n := len(v)
+	result := make(Voltages, 0, k)
 
-	for _, v := range voltages {
-		max := big.Int{}
-		index := 0
+	start := 0
+	for pick := 0; pick < k; pick++ {
+		// the latest index we are allowed to choose from
+		// while still having enough digits left
+		end := n - (k - pick)
 
-		for i := 0; i < iterations; i++ {
-			max, index = FindMax(v)
-			v = removeDigitFromArray(index, v)
-		}
-		sum = sum.Add(sum, &max)
-	}
-
-	return sum.Int64()
-}
-
-// FindMax removes one digit from the voltage to get the max
-// It returns the max and the index of the digit to remove
-func FindMax(v Voltages) (big.Int, int) {
-	index := 0
-	currentMax := big.Int{}
-	for i := 0; i < len(v); i++ {
-		tempArr := removeDigitFromArray(i, v)
-
-		str := ""
-		for _, t := range tempArr {
-			str += strconv.Itoa(t)
+		// find the largest digit in v[start:end+1]
+		bestDigit := -1
+		bestIndex := start
+		for i := start; i <= end; i++ {
+			if v[i] > bestDigit {
+				bestDigit = v[i]
+				bestIndex = i
+			}
 		}
 
-		tempVolt := ParseBigInt(str)
-		if tempVolt.Cmp(&currentMax) == 1 {
-			currentMax = tempVolt
-			index = i
-		}
+		// choose it
+		result = append(result, bestDigit)
+
+		// next search begins after the chosen digit
+		start = bestIndex + 1
 	}
 
-	return currentMax, index
+	return result
 }
 
-func removeDigitFromArray(index int, v Voltages) Voltages {
-	tempArr := Voltages{}
-	if index == 0 {
-		tempArr = append(tempArr, v[1:]...)
-	} else if index == len(v)-1 {
-		tempArr = append(tempArr, v[:len(v)-1]...)
-	} else {
-		tempArr = append(tempArr, v[:index]...)
-		tempArr = append(tempArr, v[index+1:]...)
+func digitSliceToInt64(res Voltages) int64 {
+	str := ""
+	for _, t := range res {
+		str += strconv.Itoa(t)
 	}
-	return tempArr
-}
 
-func ParseBigInt(str string) big.Int {
-	n := new(big.Int)
-	n, ok := n.SetString(str, 10)
-	if !ok {
-		log.Fatal("unable to parse big int")
+	joltage, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		log.Fatal(err)
 	}
-	return *n
+	return joltage
 }

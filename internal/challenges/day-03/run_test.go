@@ -26,13 +26,7 @@ func TestDay01(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("testing part %d with input file %s", tc.partNumber, tc.inputFile), func(t *testing.T) {
 			input := helpers.LoadParsedList[Voltages](tc.inputFile)
-			var answer int64
-			if tc.partNumber == 1 {
-				answer = CalculateJoltage(input)
-			} else {
-				answer = CalculateJoltagePartTwo(input)
-			}
-
+			answer := CalculateJoltage(input, tc.partTwo)
 			assert.Equal(t, tc.expectedAnswer, answer)
 		})
 	}
