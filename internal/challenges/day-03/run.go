@@ -19,6 +19,8 @@ func Run() {
 
 }
 
+type Voltages []int
+
 func (v Voltages) New() Voltages {
 	return Voltages{}
 }
@@ -38,30 +40,19 @@ func (v Voltages) Convert(str string) Voltages {
 	return output
 }
 
-// digits is a helper map to map digits to their positions
-type digits map[int][]int
-
-func CalculateJoltage(voltages []Voltages) int {
-	sum := 0
+func CalculateJoltage(voltages []Voltages) int64 {
+	var sum int64
 
 	for _, v := range voltages {
-		digits := digits{}
-		for i, d := range v {
-			digits[d] = append(digits[d], i)
-		}
-
 		max := 0
-		for k, w := range digits {
-			if k > max {
-				// the max digit should exclude the final digit in the voltage
-				if len(w) == 1 && w[0] == len(v)-1 {
-					continue
-				}
-				max = k
+		firstPositionsOfMax := 0
+		for i := 0; i < len(v)-1; i++ {
+			if v[i] > max {
+				max = v[i]
+				firstPositionsOfMax = i
 			}
 		}
 
-		firstPositionsOfMax := digits[max][0]
 		secondMax := 0
 
 		for i := firstPositionsOfMax + 1; i < len(v); i++ {
@@ -70,15 +61,13 @@ func CalculateJoltage(voltages []Voltages) int {
 			}
 		}
 		joltage := 10*max + secondMax
-		sum += joltage
+		sum += int64(joltage)
 	}
 
 	return sum
 }
 
-type Voltages []int
-
-func CalculateJoltagePartTwo(voltages []Voltages) string {
+func CalculateJoltagePartTwo(voltages []Voltages) int64 {
 	sum := &big.Int{}
 	iterations := len(voltages[0]) - 12
 
@@ -93,7 +82,7 @@ func CalculateJoltagePartTwo(voltages []Voltages) string {
 		sum = sum.Add(sum, &max)
 	}
 
-	return sum.String()
+	return sum.Int64()
 }
 
 // FindMax removes one digit from the voltage to get the max

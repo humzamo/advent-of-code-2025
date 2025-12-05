@@ -2,7 +2,6 @@ package day03
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/humzamo/advent-of-code-2025/internal/helpers"
@@ -29,14 +28,9 @@ func TestDay01(t *testing.T) {
 			input := helpers.LoadParsedList[Voltages](tc.inputFile)
 			var answer int64
 			if tc.partNumber == 1 {
-				answer = int64(CalculateJoltage(input))
+				answer = CalculateJoltage(input)
 			} else {
-				str := CalculateJoltagePartTwo(input)
-				parsed, err := strconv.ParseInt(str, 10, 64)
-				if err != nil {
-					t.Fail()
-				}
-				answer = parsed
+				answer = CalculateJoltagePartTwo(input)
 			}
 
 			assert.Equal(t, tc.expectedAnswer, answer)
