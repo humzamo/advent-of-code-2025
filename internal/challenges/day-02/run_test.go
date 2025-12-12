@@ -15,7 +15,7 @@ type testCase struct {
 	expectedAnswer int
 }
 
-func TestDay01(t *testing.T) {
+func TestDay02(t *testing.T) {
 	cases := []testCase{
 		{"input_test.txt", 1, false, 1227775554},
 		{"input_test.txt", 2, true, 4174379265},
