@@ -16,6 +16,7 @@ func Run() {
 	nums, ops := ParseInput(input)
 
 	fmt.Println("The answer to part one is:", CalculateAnswer(nums, ops))
+	fmt.Println("The answer to part two is:", PartTwo(input))
 }
 
 const (
@@ -89,4 +90,54 @@ func TransposeMatrix(matrix [][]int) [][]int {
 		}
 	}
 	return result
+}
+
+func PartTwo(input []string) int {
+	sum := 0
+
+	operations := strings.Fields(input[len(input)-1])
+
+	numsList := [][]int{}
+	temp := []int{}
+	for i := 0; i < len(input[0]); i++ {
+		res := ""
+		for j := 0; j < len(input)-1; j++ {
+			res += string(input[j][i])
+		}
+		res = strings.TrimSpace(res)
+		if res == "" {
+			numsList = append(numsList, temp)
+			temp = []int{}
+			continue
+		}
+
+		converted, err := strconv.Atoi(res)
+		if err != nil {
+			log.Fatal(err)
+		}
+		temp = append(temp, converted)
+
+		if i == len(input[0])-1 {
+			numsList = append(numsList, temp)
+		}
+	}
+
+	for i, op := range operations {
+		res := 1
+		if op == multiply {
+			for _, n := range numsList[i] {
+				res = res * n
+			}
+		}
+		if op == add {
+			for _, n := range numsList[i] {
+				res = res + n
+			}
+			res--
+		}
+
+		sum += res
+	}
+
+	return sum
 }
