@@ -11,8 +11,6 @@ import (
 )
 
 func Run() {
-	fmt.Println("Generating solutions for day 05...")
-
 	input := helpers.LoadStringList("./internal/challenges/day-05/input.txt")
 	validRange, toTest := ParseInput(input)
 
