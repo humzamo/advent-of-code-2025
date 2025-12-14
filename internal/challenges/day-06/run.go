@@ -13,10 +13,9 @@ func Run() {
 	fmt.Println("Generating solutions for day 06...")
 
 	input := helpers.LoadStringList("./internal/challenges/day-06/input.txt")
-	nums, ops := ParseInput(input)
 
-	fmt.Println("The answer to part one is:", CalculateAnswer(nums, ops))
-	fmt.Println("The answer to part two is:", PartTwo(input))
+	fmt.Println("The answer to part one is:", CalculateAnswer(input, false))
+	fmt.Println("The answer to part two is:", CalculateAnswer(input, true))
 }
 
 const (
@@ -24,17 +23,43 @@ const (
 	add      = "+"
 )
 
-func ParseInput(input []string) ([][]int, []string) {
-	numbersList := [][]int{}
-	operations := []string{}
+func CalculateAnswer(input []string, partTwo bool) int {
+	sum := 0
 
-	for i, s := range input {
-		split := strings.Fields(s)
+	operations := strings.Fields(input[len(input)-1])
 
-		if i == len(input)-1 {
-			operations = append(operations, split...)
-			break
+	numsList := [][]int{}
+	if partTwo {
+		numsList = NumbersListPartTwo(input[:len(input)-1])
+	} else {
+		numsList = NumbersListPartOne(input[:len(input)-1])
+	}
+
+	for i, op := range operations {
+		res := 1
+		switch op {
+		case multiply:
+			for _, n := range numsList[i] {
+				res = res * n
+			}
+		case add:
+			for _, n := range numsList[i] {
+				res = res + n
+			}
+			res--
 		}
+
+		sum += res
+	}
+
+	return sum
+}
+
+func NumbersListPartOne(input []string) [][]int {
+	numbersList := [][]int{}
+
+	for _, s := range input {
+		split := strings.Fields(s)
 
 		nums := []int{}
 		for _, n := range split {
@@ -48,60 +73,15 @@ func ParseInput(input []string) ([][]int, []string) {
 		numbersList = append(numbersList, nums)
 	}
 
-	return numbersList, operations
+	return TransposeMatrix(numbersList)
 }
 
-func CalculateAnswer(numbersList [][]int, operations []string) int {
-	sum := 0
-
-	transposed := TransposeMatrix(numbersList)
-
-	for i, nums := range transposed {
-		op := operations[i]
-		res := 1
-		if op == multiply {
-			for _, n := range nums {
-				res = res * n
-			}
-		}
-		if op == add {
-			for _, n := range nums {
-				res = res + n
-			}
-			res--
-		}
-		sum += res
-	}
-
-	return sum
-}
-
-func TransposeMatrix(matrix [][]int) [][]int {
-	rows := len(matrix)
-	cols := len(matrix[0])
-	result := make([][]int, cols)
-	for i := range result {
-		result[i] = make([]int, rows)
-	}
-
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			result[j][i] = matrix[i][j]
-		}
-	}
-	return result
-}
-
-func PartTwo(input []string) int {
-	sum := 0
-
-	operations := strings.Fields(input[len(input)-1])
-
+func NumbersListPartTwo(input []string) [][]int {
 	numsList := [][]int{}
 	temp := []int{}
 	for i := 0; i < len(input[0]); i++ {
 		res := ""
-		for j := 0; j < len(input)-1; j++ {
+		for j := 0; j < len(input); j++ {
 			res += string(input[j][i])
 		}
 		res = strings.TrimSpace(res)
@@ -121,23 +101,21 @@ func PartTwo(input []string) int {
 			numsList = append(numsList, temp)
 		}
 	}
+	return numsList
+}
 
-	for i, op := range operations {
-		res := 1
-		if op == multiply {
-			for _, n := range numsList[i] {
-				res = res * n
-			}
-		}
-		if op == add {
-			for _, n := range numsList[i] {
-				res = res + n
-			}
-			res--
-		}
-
-		sum += res
+func TransposeMatrix(matrix [][]int) [][]int {
+	rows := len(matrix)
+	cols := len(matrix[0])
+	result := make([][]int, cols)
+	for i := range result {
+		result[i] = make([]int, rows)
 	}
 
-	return sum
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			result[j][i] = matrix[i][j]
+		}
+	}
+	return result
 }
