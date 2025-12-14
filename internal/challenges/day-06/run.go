@@ -77,28 +77,38 @@ func NumbersListPartOne(input []string) [][]int {
 }
 
 func NumbersListPartTwo(input []string) [][]int {
+	rowLen := len(input[0])
 	numsList := [][]int{}
-	temp := []int{}
-	for i := 0; i < len(input[0]); i++ {
+	section := []int{}
+
+	for i := 0; i < rowLen; i++ {
+		// Work out the current number from top to bottom
 		res := ""
 		for j := 0; j < len(input); j++ {
 			res += string(input[j][i])
 		}
 		res = strings.TrimSpace(res)
+
+		// If there is a blank line (no number)
+		// we have all the number for this section.
+		// Save them to the list and continue.
 		if res == "" {
-			numsList = append(numsList, temp)
-			temp = []int{}
+			numsList = append(numsList, section)
+			section = []int{}
 			continue
 		}
 
+		// If there is a valid number, save to section.
 		converted, err := strconv.Atoi(res)
 		if err != nil {
 			log.Fatal(err)
 		}
-		temp = append(temp, converted)
+		section = append(section, converted)
 
-		if i == len(input[0])-1 {
-			numsList = append(numsList, temp)
+		// For the last column, there is blank line at the end.
+		// Save to list here instead.
+		if i == rowLen-1 {
+			numsList = append(numsList, section)
 		}
 	}
 	return numsList
