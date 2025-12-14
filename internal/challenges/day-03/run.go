@@ -9,8 +9,6 @@ import (
 )
 
 func Run() {
-	fmt.Println("Generating solutions for day 03...")
-
 	input := helpers.LoadParsedList[Voltages]("./internal/challenges/day-03/input.txt")
 
 	fmt.Println("The answer to part one is:", CalculateJoltage(input, false))

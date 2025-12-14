@@ -35,6 +35,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("Generating solutions for day:", dayNumber)
+
 	switch dayNumber {
 	case 1:
 		day01.Run()

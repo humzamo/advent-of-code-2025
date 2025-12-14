@@ -8,8 +8,6 @@ import (
 )
 
 func Run() {
-	fmt.Println("Generating solutions for day 04...")
-
 	input := helpers.LoadParsedList[Row]("./internal/challenges/day-04/input.txt")
 
 	fmt.Println("The answer to part one is:", CalculateRolls(input, false))

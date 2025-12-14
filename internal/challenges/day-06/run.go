@@ -10,8 +10,6 @@ import (
 )
 
 func Run() {
-	fmt.Println("Generating solutions for day 06...")
-
 	input := helpers.LoadStringList("./internal/challenges/day-06/input.txt")
 
 	fmt.Println("The answer to part one is:", CalculateAnswer(input, false))
