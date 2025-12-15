@@ -79,7 +79,6 @@ func CalculateAnswerPartTwo(input []string, partTwo bool) int {
 		for j := 0; j < len(grid[0]); j++ {
 			if grid[i-1][j] != space && grid[i-1][j] != spitter {
 				if grid[i][j] == spitter {
-
 					curAboveStr := grid[i-1][j]
 					curAboveInt, err := strconv.Atoi(curAboveStr)
 					if err != nil {
@@ -108,32 +107,32 @@ func CalculateAnswerPartTwo(input []string, partTwo bool) int {
 						grid[i][j+1] = strconv.Itoa(curRightInt + curAboveInt)
 					}
 				} else {
-					// curStr := grid[i][j]
-					// if curStr == space {
-					// 	grid[i][j] = "1"
-					// 	continue
-					// } else {
-					grid[i][j] = grid[i-1][j]
-					// }
-					// curInt, err := strconv.Atoi(curStr)
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// grid[i][j] = strconv.Itoa(curInt + 1)
+					if j > 0 && grid[i][j-1] != spitter {
+						grid[i][j] = grid[i-1][j]
+					} else if grid[i][j] != space {
+						curAboveStr := grid[i-1][j]
+						curAboveInt, err := strconv.Atoi(curAboveStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						curAboveLeft := grid[i-1][j-1]
+						curAboveLeftInt, err := strconv.Atoi(curAboveLeft)
+						if err != nil {
+							log.Fatal(err)
+						}
+						grid[i][j] = strconv.Itoa(curAboveInt + curAboveLeftInt)
+					} else if j > 0 && grid[i-1][j-1] == space {
+						curAboveStr := grid[i-1][j]
+						grid[i][j] = curAboveStr
+					} else {
+						grid[i][j] = "1"
+					}
 				}
-				for i := 0; i < len(grid); i++ {
-					fmt.Println(grid[i])
-				}
-				fmt.Println("")
 			}
 		}
-		// for i := 0; i < len(grid); i++ {
-		// 	fmt.Println(grid[i])
-		// }
 	}
-	// for i := 0; i < len(grid); i++ {
-	// 	fmt.Println(grid[i])
-	// }
+
 	count := 0
 	for _, str := range grid[len(grid)-1] {
 		if str == space {
