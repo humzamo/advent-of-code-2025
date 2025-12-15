@@ -2,21 +2,24 @@ package day07
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 
 	"github.com/humzamo/advent-of-code-2025/internal/helpers"
 )
 
 func Run() {
-	input := helpers.LoadStringList("./internal/challenges/day-07/input.txt")
+	input := helpers.LoadStringList("./internal/challenges/day-07/input_test.txt")
 
-	fmt.Println("The answer to part one is:", CalculateAnswer(input, false))
+	fmt.Println("The answer to part one is:", CalculateAnswerPartTwo(input, false))
 }
 
 const (
 	start   = "S"
 	beam    = "|"
 	spitter = "^"
+	space   = "."
 )
 
 func ParseInput(input []string) [][]string {
@@ -58,5 +61,89 @@ func CalculateAnswer(input []string, partTwo bool) int {
 	// for i := 0; i < len(grid); i++ {
 	// 	fmt.Println(grid[i])
 	// }
+	return count
+}
+
+func CalculateAnswerPartTwo(input []string, partTwo bool) int {
+	grid := ParseInput(input)
+
+	// set the starting beam
+	for i, s := range grid[0] {
+		if s == start {
+			grid[1][i] = "1"
+			break
+		}
+	}
+
+	for i := 2; i < len(grid); i++ {
+		for j := 0; j < len(grid[0]); j++ {
+			if grid[i-1][j] != space && grid[i-1][j] != spitter {
+				if grid[i][j] == spitter {
+
+					curAboveStr := grid[i-1][j]
+					curAboveInt, err := strconv.Atoi(curAboveStr)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					curLeftStr := grid[i][j-1]
+					if curLeftStr == space {
+						grid[i][j-1] = curAboveStr
+					} else {
+						curLeftInt, err := strconv.Atoi(curLeftStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+						grid[i][j-1] = strconv.Itoa(curLeftInt + curAboveInt)
+					}
+
+					curRightStr := grid[i][j+1]
+					if curRightStr == space {
+						grid[i][j+1] = curAboveStr
+					} else {
+						curRightInt, err := strconv.Atoi(curRightStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+						grid[i][j+1] = strconv.Itoa(curRightInt + curAboveInt)
+					}
+				} else {
+					// curStr := grid[i][j]
+					// if curStr == space {
+					// 	grid[i][j] = "1"
+					// 	continue
+					// } else {
+					grid[i][j] = grid[i-1][j]
+					// }
+					// curInt, err := strconv.Atoi(curStr)
+					// if err != nil {
+					// 	log.Fatal(err)
+					// }
+					// grid[i][j] = strconv.Itoa(curInt + 1)
+				}
+				for i := 0; i < len(grid); i++ {
+					fmt.Println(grid[i])
+				}
+				fmt.Println("")
+			}
+		}
+		// for i := 0; i < len(grid); i++ {
+		// 	fmt.Println(grid[i])
+		// }
+	}
+	// for i := 0; i < len(grid); i++ {
+	// 	fmt.Println(grid[i])
+	// }
+	count := 0
+	for _, str := range grid[len(grid)-1] {
+		if str == space {
+			continue
+		}
+		num, err := strconv.Atoi(str)
+		if err != nil {
+			log.Fatal(err)
+		}
+		count += num
+	}
 	return count
 }
