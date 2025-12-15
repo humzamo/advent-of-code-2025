@@ -77,53 +77,70 @@ func CalculateAnswerPartTwo(input []string, partTwo bool) int {
 
 	for i := 2; i < len(grid); i++ {
 		for j := 0; j < len(grid[0]); j++ {
-			if grid[i-1][j] != space && grid[i-1][j] != spitter {
-				if grid[i][j] == spitter {
-					curAboveStr := grid[i-1][j]
-					curAboveInt, err := strconv.Atoi(curAboveStr)
+			// only care if there is a number above - spaces and splitters are ignored
+			if IsNumber(grid[i-1][j]) {
+
+				var curAboveInt, curLeftInt, curRightInt, curAboveLeftInt int
+				var curAboveStr, curLeftStr, curRightStr, curAboveLeftStr string
+
+				var err error
+				curAboveStr = grid[i-1][j]
+				if IsNumber(curAboveStr) {
+					curAboveInt, err = strconv.Atoi(curAboveStr)
 					if err != nil {
 						log.Fatal(err)
 					}
+				}
 
-					curLeftStr := grid[i][j-1]
+				if j > 0 {
+					curLeftStr = grid[i][j-1]
+					if IsNumber(curLeftStr) {
+						curLeftInt, err = strconv.Atoi(curLeftStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+					}
+				}
+
+				if j < len(grid[0])-1 {
+					curRightStr = grid[i][j+1]
+					if IsNumber(curRightStr) {
+						curRightInt, err = strconv.Atoi(curRightStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+					}
+				}
+
+				if j > 0 {
+					curAboveLeftStr = grid[i-1][j-1]
+					if IsNumber(curAboveLeftStr) {
+						curAboveLeftInt, err = strconv.Atoi(curAboveLeftStr)
+						if err != nil {
+							log.Fatal(err)
+						}
+					}
+				}
+
+				// if the current space is a splitter
+				if grid[i][j] == spitter {
 					if curLeftStr == space {
 						grid[i][j-1] = curAboveStr
 					} else {
-						curLeftInt, err := strconv.Atoi(curLeftStr)
-						if err != nil {
-							log.Fatal(err)
-						}
 						grid[i][j-1] = strconv.Itoa(curLeftInt + curAboveInt)
 					}
 
-					curRightStr := grid[i][j+1]
 					if curRightStr == space {
 						grid[i][j+1] = curAboveStr
 					} else {
-						curRightInt, err := strconv.Atoi(curRightStr)
-						if err != nil {
-							log.Fatal(err)
-						}
 						grid[i][j+1] = strconv.Itoa(curRightInt + curAboveInt)
 					}
 				} else {
 					if j > 0 && grid[i][j-1] != spitter {
 						grid[i][j] = grid[i-1][j]
 					} else if grid[i][j] != space {
-						curAboveStr := grid[i-1][j]
-						curAboveInt, err := strconv.Atoi(curAboveStr)
-						if err != nil {
-							log.Fatal(err)
-						}
-
-						curAboveLeft := grid[i-1][j-1]
-						curAboveLeftInt, err := strconv.Atoi(curAboveLeft)
-						if err != nil {
-							log.Fatal(err)
-						}
 						grid[i][j] = strconv.Itoa(curAboveInt + curAboveLeftInt)
 					} else if j > 0 && grid[i-1][j-1] == space {
-						curAboveStr := grid[i-1][j]
 						grid[i][j] = curAboveStr
 					} else {
 						grid[i][j] = "1"
@@ -145,4 +162,8 @@ func CalculateAnswerPartTwo(input []string, partTwo bool) int {
 		count += num
 	}
 	return count
+}
+
+func IsNumber(s string) bool {
+	return s != space && s != spitter
 }
