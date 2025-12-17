@@ -28,9 +28,9 @@ func TestDay07(t *testing.T) {
 			input := helpers.LoadStringList(tc.inputFile)
 			answer := 0
 			if tc.partTwo {
-				answer = CalculateAnswerPartTwo(input, tc.partTwo)
+				answer = CalculateAnswerPartTwo(input)
 			} else {
-				answer = CalculateAnswer(input, tc.partTwo)
+				answer = CalculateAnswerPartOne(input)
 			}
 			assert.Equal(t, tc.expectedAnswer, answer)
 		})
