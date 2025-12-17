@@ -11,6 +11,7 @@ import (
 	day04 "github.com/humzamo/advent-of-code-2025/internal/challenges/day-04"
 	day05 "github.com/humzamo/advent-of-code-2025/internal/challenges/day-05"
 	day06 "github.com/humzamo/advent-of-code-2025/internal/challenges/day-06"
+	day07 "github.com/humzamo/advent-of-code-2025/internal/challenges/day-07"
 )
 
 func main() {
@@ -50,6 +51,8 @@ func main() {
 		day05.Run()
 	case 6:
 		day06.Run()
+	case 7:
+		day07.Run()
 	default:
 		fmt.Printf("Uh oh, there's no solution for day %s yet... 👀\n", dayString)
 		os.Exit(1)
