@@ -1,10 +1,8 @@
 package day02
 
 import (
-	"bytes"
 	"fmt"
 	"log"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -54,26 +52,8 @@ func CalculateInvalidIds(ranges []Range, partTwo bool) int {
 			str := strconv.Itoa(i)
 			midpoint := len(str) / 2
 
-			for j := 1; j <= midpoint; j++ {
-				if !partTwo {
-					if len(str)%2 != 0 {
-						continue
-					}
-					j = midpoint
-				}
-
-				if len(str)%j != 0 {
-					continue
-				}
-
-				splitStr := SplitSubN(str, j)
-				slices.Sort(splitStr)
-				splitStr = slices.Compact(splitStr)
-
-				if len(splitStr) == 1 {
-					invalidIdSum += i
-					break
-				}
+			if ok := hasRepeatedSequenceKMP(str, midpoint, partTwo); ok {
+				invalidIdSum += i
 			}
 		}
 	}
@@ -81,21 +61,42 @@ func CalculateInvalidIds(ranges []Range, partTwo bool) int {
 	return invalidIdSum
 }
 
-func SplitSubN(s string, n int) []string {
-	sub := ""
-	subs := []string{}
+func hasRepeatedSequenceKMP(s string, maxUnit int, partTwo bool) bool {
+	n := len(s)
+	lps := make([]int, n)
+	half := n / 2
 
-	runes := bytes.Runes([]byte(s))
-	l := len(runes)
-	for i, r := range runes {
-		sub = sub + string(r)
-		if (i+1)%n == 0 {
-			subs = append(subs, sub)
-			sub = ""
-		} else if (i + 1) == l {
-			subs = append(subs, sub)
+	if !partTwo {
+		if n < 2 || n%2 != 0 {
+			return false
+		}
+
+		if half > maxUnit {
+			return false
 		}
 	}
 
-	return subs
+	for i, j := 1, 0; i < n; {
+		if s[i] == s[j] {
+			j++
+			lps[i] = j
+			i++
+		} else if j > 0 {
+			j = lps[j-1]
+		} else {
+			i++
+		}
+	}
+
+	unit := n - lps[n-1]
+
+	if !partTwo {
+		p := n - lps[n-1]
+		return half%p == 0
+	}
+
+	return lps[n-1] > 0 &&
+		n%unit == 0 &&
+		unit <= maxUnit &&
+		n/unit >= 2
 }
